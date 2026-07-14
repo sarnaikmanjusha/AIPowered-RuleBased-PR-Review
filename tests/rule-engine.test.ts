@@ -22,12 +22,19 @@ describe('rule-engine', () => {
     expect(findings.some((finding) => finding.rule === 'no-any')).toBe(true);
   });
 
-  it('reviews actual sample files from disk and returns multiple findings', () => {
-    const report = reviewFiles(['tests/sample.spec.ts', 'tests/sample.ts']);
+  it('reviews actual sample files from disk and returns multiple findings', async () => {
+    const report = await reviewFiles(['tests/sample.spec.ts', 'tests/sample.ts']);
     expect(report.findings.length).toBeGreaterThan(2);
     expect(report.findings.some((finding) => finding.rule === 'no-wait-for-timeout')).toBe(true);
     expect(report.findings.some((finding) => finding.rule === 'no-hardcoded-secrets')).toBe(true);
     expect(report.findings.some((finding) => finding.rule === 'avoid-page-dollar')).toBe(true);
     expect(report.findings.some((finding) => finding.rule === 'no-any')).toBe(true);
+  });
+
+  it('falls back gracefully when no OpenAI API key is configured', async () => {
+    delete process.env.OPENAI_API_KEY;
+    const report = await reviewFiles(['tests/sample.spec.ts', 'tests/sample.ts']);
+    expect(report.aiStatus).toBe('fallback');
+    expect(report.aiReview.toLowerCase()).toContain('rule-based review');
   });
 });

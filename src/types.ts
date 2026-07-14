@@ -26,4 +26,7 @@ export interface ReviewReport {
   playwrightScore: number;
   grade: string;
   findings: ReviewFinding[];
+  aiReview: string;
+  aiStatus: 'completed' | 'fallback';
+  aiError?: string;
 }
